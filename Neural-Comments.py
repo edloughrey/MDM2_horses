@@ -111,7 +111,7 @@ if __name__ == '__main__':
         print
 
     print("meow4")
-    network = MLP(2,2,1) #passed as self to __init__
+    network = MLP(2,2,1) #passed as self to __init__ probably where the initial data should go but I am not sure
     samples = np.zeros(4, dtype=[('input',  float, 2), ('output', float, 1)])
 
 
