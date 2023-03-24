@@ -1,0 +1,29 @@
+On windows merge csv files using cmd:
+1.Put all the files to be merged into 1 folder
+2.open cmd and get into said file using "cd FolderPath"
+3.type "copy *.csv FileName.csv"
+4.This makes a file of files in the folder
+
+Upload both win and place files to access 
+1.Create database
+2.External Data -> New Data Source -> From File -> Text File -> Filename.csv
+3.Delimited -> Comma (click "First Row Contains Field Names") ->
+4.Click on each not required row and select "Do not import field (Skip)"
+5.I do No primary key for now
+(ImportErrors are the row names from file merging - ignore)
+
+Use SQL to merge the databases together
+1.Createe Query Design
+2.View - SQL here usually the code should be:
+
+SELECT Allplaces.BSP, Allwins.BSP
+FROM Allplaces
+INNER JOIN Allwins 
+ON (Allplaces.SELECTION_ID = Allwins.SELECTION_ID) 
+AND (Allplaces.EVENT_ID = Allwins.EVENT_ID);
+
+3.This creates a new table with Allplace.BSP and Allwins.BSP only where both eventID and selectionID match
+But in these files there is no data which meets that criteria 
+which is why I am a bit confused with what we are trying to get here
+
+That means place and win documents are not about the same events? 
