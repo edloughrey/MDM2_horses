@@ -1,0 +1,23 @@
+files = dir('*.csv');
+
+place = [];
+
+for j=1:365
+    P = readtable(files(j).name);
+    P = sortrows(P,5);
+    place = [place; P.EVENT_ID, P.SELECTION_ID, P.BSP,P.PPWAP, P.PPMAX, P.PPTRADEDVOL, P.IPTRADEDVOL];
+end
+
+
+win = [];
+for i=366:731
+    W = readtable(files(i).name);
+    W = sortrows(W,5);
+    win = [win; W.EVENT_ID, W.SELECTION_ID, W.BSP, W.PPWAP, W.PPMAX, W.PPTRADEDVOL, W.IPTRADEDVOL];
+end
+
+lia = ismember(win(:,2),place(:,2));
+
+lia2 = ismember(win(:,2),place(:,2));
+s = find(lia==0);
+win(s,:) = [];
