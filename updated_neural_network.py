@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 20 16:56:36 2023
+
+@author: rubya
+"""
+
 from sklearn.neural_network import MLPRegressor
-from sklearn.model_selection import GridSearchCV #use this for cross validation
+from sklearn.model_selection import GridSearchCV 
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 import pandas as pd
@@ -10,6 +17,8 @@ import matplotlib.pyplot as plt
 #https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
 #https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
 #https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html
+
+
 
 #Extracting the BSP data from each of the win and place market datasets
 data1 = pd.read_csv(r"C:\Users\rubya\Desktop\University\Year2\MDM2\REP3\pricesukplace01012023.csv")
@@ -29,56 +38,40 @@ BSP_x_new = BSP_x_prob[:,None]
 BSP_y_new = BSP_y_prob[:,None]
 
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(BSP_x_new, BSP_y_new)
-
-#print(BSP_x) #this is the win market BSP values
-#print(BSP_y) #this is the place market BSP values 
-
-#This is setting up the neural network, the input variables that are passed through can be changed for example hidden_layer_sizes(10,10,10,10,)
-neural_network = MLPRegressor(activation='logistic',hidden_layer_sizes=(100,100,100,100,100,100,100,100,100), early_stopping=True).fit(Xtrain,Ytrain) #also try relu for activation
-ypred = neural_network.predict(Xtest)
-R2vals = neural_network.score(Xtest,Ytest)
-
-print('ypred = ', ypred)
-print('**************')
-print('R2vals=', R2vals)
-
-plt.scatter(Xtest,Ytest,c='blue')
-plt.scatter(Ytest,ypred,c='pink')
-plt.show()
-
-
-
+#BSP_x is now the win market BSP value, BSP_y is now the place market BSP values 
 
 
 
 #this is using cross validation method to find the most suitable variables for hidden_layer_size
-parameters = {'activtion':('relu', 'logistic'), 'hidden_layer_sizes':((10),(10,10),(10,10,10),(10,10,10,10),(10,10,10,10,10),(10,10,10,10,10,10))}
-clf = GridSearchCV(estimator=neural_network, param_grid=parameters)
+parameters = {'activation':('relu', 'logistic'), 'hidden_layer_sizes':((5),(10),(20),(5,5),(10,10),(20,20),(5,5,5),(10,10,10),(20,20,20),(5,5,5,5),(10,10,10,10),(20,20,20,20),(5,5,5,5,5),(10,10,10,10,10),(20,20,20,20,20))}
+clf = GridSearchCV(estimator=MLPRegressor(), param_grid=parameters, scoring='r2', cv=5)
+clf.fit(Xtrain,Ytrain)
+
+#identifying the best parameters out of the ones given
+best_params = clf.best_params_
+print('**********')
+print('best parameters:',best_params)
+
+#assigning the new best parameters variables so they can be graphed and the R2 value calculated 
+newactivation = list(best_params.values())[0]
+newhiddenlayersize = list(best_params.values())[1]
+
+#applying these new optimal parameters to the neural network to caluclate the R2 value
+neural_network = MLPRegressor(activation=str(newactivation),hidden_layer_sizes=newhiddenlayersize, early_stopping=True).fit(Xtrain,Ytrain) 
+ypred = neural_network.predict(Xtest)
+R2vals = neural_network.score(Xtest,Ytest)
+
+print('************')
+print('ypred = ', ypred)
+print('**************')
+print('R2val=', R2vals)
+print('**************')
+
+#plot of the correlation between the actual y values (x axis) and the predicted y values from the machine learning (y axis)
+plt.scatter(Ytest,ypred,c='pink')
+plt.show()
 
 
-#THE ERROR IS HERE!!!!!!
-print('********')
-y_score = clf.decision_function(Xtrain)
-print('y_score=', y_score)
-print('********')
-fitting = clf.fit(Xtrain,Ytrain)
-print('fitting=', fitting)
-print('********')
-bestparams = clf.get_params(deep=True)
-print('bestparams=', bestparams)
-print('********')
-
-
-ypredcv = clf.predict(Xtest)
-R2valscv = clf.score(Xtest,Ytest)
-print('ypredcv=', ypredcv)
-print('********')
-print('R2valscv=', R2valscv)
-
-
-print(sorted(clf.cv_results_.keys())) # this prints out the optimal values for each of the parameters inputted 
-
-
-#calculating the mean squared error value of the network
-error = mean_squared_error(Ytrain, ypred) #not sure what our y_true and y_pred values are?
-print(error)
+#finding the mean squared error also
+MSE = mean_squared_error(Ytest,ypred)
+print('mean squared error:', MSE)
